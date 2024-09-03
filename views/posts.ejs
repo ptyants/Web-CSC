@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %>
+    </title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <%- include('header') %>
+    <div class="container mt-4">
+        <h2>Bài viết</h2>
+        <a href="/posts/new" class="btn btn-primary mb-3">Viết bài mới</a>
+        <ul class="list-group">
+            <% posts.forEach(post=> { %>
+                <li class="list-group-item">
+                    <h5>
+                        <%= post.title %>
+                    </h5>
+                    <p>
+                        <%= post.content %>
+                    </p>
+                    <small>Tác giả: <%= post.author %> | <%= post.date.toDateString() %></small>
+                </li>
+                <% }); %>
+        </ul>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
