@@ -13,9 +13,11 @@ const Schema = mongoose.Schema;
 // });
 
 const scheduleSchema = new Schema({
-    mssv: String, // Thêm MSSV
-    dates: [Date], // Cho phép nhiều ngày
-    timeSlots: [String], // Các khung giờ
+    mssv: { type: String, required: true }, // MSSV là bắt buộc
+    dates: [{
+        day: { type: Number, required: true }, // Ngày trong tuần (1: Mon, 7: Sun)
+        timeSlot: { type: String, required: true }, // Khung giờ
+    }],
     registrationTime: { type: Date, default: Date.now }, // Thời gian đăng ký
     status: { type: String, default: 'Pending' } // Trạng thái: Pending, Approved, Rejected
 });

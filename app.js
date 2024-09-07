@@ -14,7 +14,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
 // Kết nối với MongoDB
-mongoose.connect('mongodb://127.0.0.1:27017/club', { useNewUrlParser: true, useUnifiedTopology: true });
+//mongoose.connect('mongodb://127.0.0.1:27017/club', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect('mongodb+srv://phamtheants:MjJg26IjuyUft9pu@webcscdb.tlk67.mongodb.net/CSC_db?retryWrites=true&w=majority', 
+    { useNewUrlParser: true, useUnifiedTopology: true });
 
 const db = mongoose.connection;
 
