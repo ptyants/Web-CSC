@@ -1,7 +1,7 @@
 {
   "name": "web-csc",
   "version": "1.0.0",
-  "description": "",
+  "description": "Web for Computer Science Club (CSC)",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

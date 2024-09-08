@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const Post = require('./models/Post');
 const Schedule = require('./models/Schedule');
+const path = require('path');
 
 
 
@@ -11,7 +12,9 @@ const app = express();
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static('public'));
+//app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
+app.set('views', path.join(__dirname, 'views'));
 
 // Kết nối với MongoDB
 //mongoose.connect('mongodb://127.0.0.1:27017/club', { useNewUrlParser: true, useUnifiedTopology: true });
