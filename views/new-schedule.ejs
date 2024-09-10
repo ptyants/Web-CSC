@@ -1,6 +1,6 @@
+<!-- new-schedule.ejs -->
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -43,12 +43,11 @@
         }
     </style>
 </head>
-
 <body>
     <%- include('header') %>
     <div class="container mt-4">
         <h2>Đăng ký lịch trực</h2>
-        <form action="/schedules" method="POST">
+        <form id="scheduleForm" action="/schedules" method="POST">
             <div class="mb-3">
                 <label for="mssv" class="form-label">Mã số sinh viên (MSSV)</label>
                 <input type="text" class="form-control" id="mssv" name="mssv" value="<%= schedule ? schedule.mssv : '' %>" required>
@@ -65,14 +64,14 @@
                     <div class="hour">Fri</div>
                     <div class="hour">Sat</div>
                     <div class="hour">Sun</div>
-
+            
                     <!-- Tạo các mốc giờ cụ thể -->
-                    <% const timeSlots = ['7h50 - 11h15', '13h30 - 17h']; %>
+                    <% const timeSlots = ['7h50 - 9h30', '9h30 - 11h15', '13h - 15h15', '15h15 - 17h']; %>
                     <% timeSlots.forEach(timeSlot => { %>
                         <div class="hour"><%= timeSlot %></div>
-                        <% for (let day = 1; day <= 7; day++) { %>
+                        <% for (let day = 0; day < 7; day++) { %>
                             <div class="day">
-                                <input type="checkbox" name="dates[<%= day %>][<%= timeSlot %>]" value="selected">
+                                <input type="checkbox" class="timeSlotCheckbox" data-day="<%= day %>" data-time="<%= timeSlot %>" name="timeSlots[<%= day %>][<%= timeSlot %>]" value="selected">
                             </div>
                         <% } %>
                     <% }); %>
@@ -83,6 +82,33 @@
         </form>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          const form = document.getElementById('scheduleForm');
+          
+          form.addEventListener('submit', function(event) {
+            const checkboxes = document.querySelectorAll('.timeSlotCheckbox');
+            const selectedSlots = {};
+    
+            checkboxes.forEach(checkbox => {
+              if (checkbox.checked) {
+                const day = checkbox.getAttribute('data-day');
+                const time = checkbox.getAttribute('data-time');
+                
+                if (!selectedSlots[day]) {
+                  selectedSlots[day] = {};
+                }
+                selectedSlots[day][time] = 'selected';
+              }
+            });
+    
+            const timeSlotsInput = document.createElement('input');
+            timeSlotsInput.type = 'hidden';
+            timeSlotsInput.name = 'timeSlots';
+            timeSlotsInput.value = JSON.stringify(selectedSlots);
+            form.appendChild(timeSlotsInput);
+          });
+        });
+    </script>
 </body>
-
 </html>
