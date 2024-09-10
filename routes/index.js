@@ -38,7 +38,7 @@ router.get('/about', (req, res) => {
 
 // Sự kiện
 router.get('/events', (req, res) => {
-  res.render('events');
+  res.render('events', { title: 'Sự kiện' });
 });
 
 // Thành viên
