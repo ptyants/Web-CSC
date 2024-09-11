@@ -4,7 +4,7 @@ const methodOverride = require('method-override');
 const session = require('express-session');
 const flash = require('express-flash');
 const mongoose = require('mongoose');
-const MongoStore = require('connect-mongo')(session);
+const MongoStore = require('connect-mongo');
 const path = require('path');
 
 const app = express();
@@ -26,7 +26,7 @@ app.use(session({
     secret: 'your-secret-key',
     resave: false,
     saveUninitialized: true,
-    store: new MongoStore({ mongooseConnection: mongoose.connection }),
+    store: MongoStore.create({ mongoUrl: 'mongodb+srv://phamtheants:MjJg26IjuyUft9pu@webcscdb.tlk67.mongodb.net/CSC_db?retryWrites=true&w=majority' }),
     cookie: { secure: false }
 }));
 
