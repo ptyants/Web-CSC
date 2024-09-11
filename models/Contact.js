@@ -8,7 +8,5 @@ const contactSchema = new mongoose.Schema({
   sentAt: { type: Date, default: Date.now }  // Tự động lưu ngày giờ hiện tại
 });
 
-// Tạo model từ schema
-const Contact = mongoose.model('Contact', contactSchema);
 
-module.exports = Contact;
+module.exports = mongoose.model('Contact', contactSchema);

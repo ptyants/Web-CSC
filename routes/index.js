@@ -8,7 +8,7 @@ const { isAuthenticated, checkRole } = require('../middlewares/auth');
 const Post = require('../models/Post');
 const Schedule = require('../models/Schedule');
 const User = require('../models/User');
-const Contact = require('../models/contact');
+const Contact = require('../models/Contact');
 
 
 // xác thực mật khẩu

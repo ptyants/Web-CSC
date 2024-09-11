@@ -4,6 +4,7 @@ const methodOverride = require('method-override');
 const session = require('express-session');
 const flash = require('express-flash');
 const mongoose = require('mongoose');
+const MongoStore = require('connect-mongo')(session);
 const path = require('path');
 
 const app = express();
@@ -22,12 +23,12 @@ app.use(express.urlencoded({ extended: false })); // Middleware để xử lý d
 // Middleware khác
 app.use(methodOverride('_method'));
 app.use(session({
-    secret: 'your-secret-key', // Thay thế với một khóa bí mật an toàn
+    secret: 'your-secret-key',
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false } // Đặt secure: true nếu dùng HTTPS
-  }));
-
+    store: new MongoStore({ mongooseConnection: mongoose.connection }),
+    cookie: { secure: false }
+}));
 
 app.use(passport.initialize());
 app.use(passport.session());
