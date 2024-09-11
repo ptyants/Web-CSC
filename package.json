@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
     "connect-flash": "^0.1.1",
     "ejs": "^3.1.10",
@@ -18,6 +19,7 @@
     "express-flash": "^0.0.2",
     "express-handlebars": "^8.0.1",
     "express-session": "^1.18.0",
+    "jsonwebtoken": "^9.0.2",
     "method-override": "^3.0.0",
     "mongoose": "^8.6.0",
     "passport": "^0.7.0",

@@ -22,10 +22,11 @@ app.use(express.urlencoded({ extended: false })); // Middleware để xử lý d
 // Middleware khác
 app.use(methodOverride('_method'));
 app.use(session({
-  secret: 'secretKey', // Khóa bí mật để mã hóa session
-  resave: false,
-  saveUninitialized: false
-}));
+    secret: 'your-secret-key', // Thay thế với một khóa bí mật an toàn
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false } // Đặt secure: true nếu dùng HTTPS
+  }));
 
 
 app.use(passport.initialize());

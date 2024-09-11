@@ -198,7 +198,7 @@ router.get('/schedules', async (req, res) => {
 });
 
 // Route để xem và tạo lịch mới
-router.get('/schedules/new', isAuthenticated, checkRole('member'),async (req, res) => {
+router.get('/schedules/new', checkRole('member'),async (req, res) => {
   const user = req.user; // Lấy người dùng từ đối tượng req.user
   const mssv = user.mssv; // Lấy MSSV từ người dùng
   // const mssv = req.query.mssv; // Lấy MSSV từ query
@@ -229,7 +229,7 @@ router.post('/schedules/:id/reject', async (req, res) => {
 });
 
 // Route để đăng ký lịch mới
-router.post('/schedules', isAuthenticated, checkRole('member'), async (req, res) => {
+router.post('/schedules', checkRole('member'), async (req, res) => {
   try {
     const { mssv, timeSlots } = req.body;
     console.log("Dữ liệu đăng ký:", req.body);
@@ -281,7 +281,7 @@ router.post('/schedules', isAuthenticated, checkRole('member'), async (req, res)
 
 
 // Route để xem lịch theo dạng lưới
-router.get('/schedules/view', isAuthenticated, checkRole('member'),async (req, res) => {
+router.get('/schedules/view', checkRole('member'),async (req, res) => {
   try {
     const schedules = await Schedule.find({});
     const organizedSchedules = await organizeSchedules(schedules);
