@@ -50,7 +50,7 @@
         <form id="scheduleForm" action="/schedules" method="POST">
             <div class="mb-3">
                 <label for="mssv" class="form-label">Mã số sinh viên (MSSV)</label>
-                <input type="text" class="form-control" id="mssv" name="mssv" value="<%= mssv %>" readonly>
+                <input type="text" class="form-control" id="mssv" name="mssv" value="<%= schedule ? schedule.mssv : '' %>" required>
             </div>
             <div class="mb-3">
                 <label for="dates" class="form-label">Chọn ngày và khung giờ</label>
@@ -71,11 +71,7 @@
                         <div class="hour"><%= timeSlot %></div>
                         <% for (let day = 0; day < 7; day++) { %>
                             <div class="day">
-                                <input type="checkbox" class="timeSlotCheckbox" data-day="<%= day %>" data-time="<%= timeSlot %>" name="timeSlots[<%= day %>][<%= timeSlot %>]" value="selected"
-                                <% if (scheduleData[day] && scheduleData[day].includes(timeSlot)) { %>
-                                    checked
-                                <% } %>
-                                >
+                                <input type="checkbox" class="timeSlotCheckbox" data-day="<%= day %>" data-time="<%= timeSlot %>" name="timeSlots[<%= day %>][<%= timeSlot %>]" value="selected">
                             </div>
                         <% } %>
                     <% }); %>

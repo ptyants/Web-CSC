@@ -1,19 +1,56 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const { isAuthenticated, checkRole } = require('../middlewares/auth');
 
 // các Model
 const Post = require('../models/Post');
 const Schedule = require('../models/Schedule');
+const User = require('../models/User');
+const Contact = require('../models/contact');
+
+
+// xác thực mật khẩu
+passport.use(new LocalStrategy({ usernameField: 'mssv' }, async (mssv, password, done) => {
+  try {
+      const user = await User.findOne({ mssv });
+      if (!user) {
+          return done(null, false, { message: 'Tài khoản không tồn tại' });
+      }
+      const isValid = await user.isValidPassword(password);
+      if (!isValid) {
+          return done(null, false, { message: 'Mật khẩu không đúng' });
+      }
+      return done(null, user);
+  } catch (err) {
+      return done(err);
+  }
+}));
+
+
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+  try {
+      const user = await User.findById(id);
+      done(null, user);
+  } catch (err) {
+      done(err);
+  }
+});
+
 
 // Route cho trang chủ
 router.get('/', (req, res) => {
-  res.render('index', { title: 'Trang chủ' });
+  res.render('index', { title: 'Trang chủ', user: req.user });
 });
 
 // Route đăng nhập (hiển thị form đăng nhập)
 router.get('/login', (req, res) => {
-  res.render('login', { title: 'Đăng nhập' });
+  res.render('login', { title: 'Đăng nhập', message: '', user: req.user });
 });
 
 // Route xử lý đăng nhập với passport-local
@@ -30,6 +67,59 @@ router.get('/dashboard', (req, res) => {
   }
   res.render('dashboard', { user: req.user }); // Hiển thị dashboard với thông tin người dùng
 });
+
+
+// Route đăng ký (hiển thị form đăng ký)
+router.get('/register', (req, res) => {
+  res.render('register', { title: 'Đăng ký', message: '' });
+});
+
+// Route xử lý đăng ký
+router.post('/register', async (req, res) => {
+  const { username, mssv, password, confirmPassword } = req.body;
+
+  if (password !== confirmPassword) {
+    return res.render('register', { title: 'Đăng ký', message: 'Mật khẩu không khớp.' });
+  }
+
+  try {
+    // Kiểm tra xem tài khoản đã tồn tại hay chưa
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.render('register', { title: 'Đăng ký', message: 'Tài khoản đã tồn tại.' });
+    }
+
+    // Tạo người dùng mới
+    const newUser = new User({
+      username,
+      mssv,
+      password, // Mật khẩu sẽ được hash trong User model
+      role: 'member' // Thiết lập mặc định vai trò cho người dùng mới
+    });
+
+    await newUser.save();
+    res.redirect('/login'); // Sau khi đăng ký thành công, chuyển hướng về trang đăng nhập
+  } catch (err) {
+    console.error('Lỗi khi đăng ký:', err);
+    res.render('register', { title: 'Đăng ký', message: 'Đã xảy ra lỗi, vui lòng thử lại.' });
+  }
+});
+
+// Route đăng xuất
+router.get('/logout', (req, res, next) => {
+  req.logout(function(err) {
+    if (err) {
+      return next(err);
+    }
+    req.session.destroy(function(err) { // Xóa session
+      if (err) {
+        return next(err);
+      }
+      res.redirect('/');
+    });
+  });
+});
+
 
 // Giới thiệu CLB
 router.get('/about', (req, res) => {
@@ -51,16 +141,26 @@ router.route('/contact')
   .get((req, res) => {
     res.render('contact'); // Hiển thị form liên hệ
   })
-  .post((req, res) => {
+  .post(async (req, res) => {
     const { name, email, message } = req.body;
 
-    // Xử lý dữ liệu POST
-    console.log(`Name: ${name}`);
-    console.log(`Email: ${email}`);
-    console.log(`Message: ${message}`);
+    // Tạo đối tượng mới dựa trên thông tin từ form
+    const newContact = new Contact({
+      name,
+      email,
+      message
+    });
 
-    // Phản hồi sau khi xử lý
-    res.send('Cảm ơn bạn đã liên hệ! Chúng tôi sẽ sớm phản hồi.');
+    try {
+      // Lưu vào database
+      await newContact.save();
+
+      // Render trang với thông báo và chuyển hướng sau 10 giây
+      res.render('thankyou', { message: 'Cảm ơn bạn đã liên hệ! Bạn sẽ được chuyển về Trang chủ sau 10 giây.' });
+    } catch (error) {
+      console.error('Error saving contact:', error);
+      res.status(500).send('Đã xảy ra lỗi, vui lòng thử lại sau.');
+    }
   });
 
 // Trang bài viếtf
@@ -98,16 +198,23 @@ router.get('/schedules', async (req, res) => {
 });
 
 // Route để xem và tạo lịch mới
-router.get('/schedules/new', async (req, res) => {
-  const mssv = req.query.mssv; // Lấy MSSV từ query
+router.get('/schedules/new', isAuthenticated, checkRole('member'),async (req, res) => {
+  const user = req.user; // Lấy người dùng từ đối tượng req.user
+  const mssv = user.mssv; // Lấy MSSV từ người dùng
+  // const mssv = req.query.mssv; // Lấy MSSV từ query
+
   let schedule = null;
 
   if (mssv) {
     schedule = await Schedule.findOne({ mssv });
   }
 
-  res.render('new-schedule', { title: 'Đăng ký lịch trực CLB', schedule });
+  const scheduleData = schedule ? Object.fromEntries(schedule.scheduleData) : {};
+  console.log("scheduleData lấy: ", scheduleData)
+
+  res.render('new-schedule', { title: 'Đăng ký lịch trực CLB', scheduleData, mssv });
 });
+
 
 router.post('/schedules/:id/approve', async (req, res) => {
   const { id } = req.params;
@@ -122,7 +229,7 @@ router.post('/schedules/:id/reject', async (req, res) => {
 });
 
 // Route để đăng ký lịch mới
-router.post('/schedules', async (req, res) => {
+router.post('/schedules', isAuthenticated, checkRole('member'), async (req, res) => {
   try {
     const { mssv, timeSlots } = req.body;
     console.log("Dữ liệu đăng ký:", req.body);
@@ -165,7 +272,7 @@ router.post('/schedules', async (req, res) => {
       await schedule.save();
     }
 
-    res.redirect('/schedules');
+    res.redirect('/schedules/view');
   } catch (error) {
     console.error('Lỗi khi xử lý đăng ký lịch:', error);
     res.status(500).send('Lỗi khi xử lý đăng ký lịch.');
@@ -174,10 +281,14 @@ router.post('/schedules', async (req, res) => {
 
 
 // Route để xem lịch theo dạng lưới
-router.get('/schedules/view', async (req, res) => {
+router.get('/schedules/view', isAuthenticated, checkRole('member'),async (req, res) => {
   try {
     const schedules = await Schedule.find({});
-    const organizedSchedules = organizeSchedules(schedules);
+    const organizedSchedules = await organizeSchedules(schedules);
+    
+    // Kiểm tra organizedSchedules có phải mảng
+    console.log("Is Array:", Array.isArray(organizedSchedules)); 
+    
     res.render('schedules-view', { schedules: organizedSchedules, title: 'Lịch trực' });
   } catch (error) {
     console.error(error);
@@ -186,7 +297,15 @@ router.get('/schedules/view', async (req, res) => {
 });
 
 
-function organizeSchedules(schedules) {
+async function organizeSchedules(schedules) {
+
+  const users = await User.find({});
+  const userLookup = {};
+  users.forEach(user => {
+    userLookup[user.mssv] = user.username; // Gán MSSV với tên người dùng
+  });
+  console.log("userLookup: ", userLookup)
+
   // Các ngày trong tuần theo chỉ số từ 0 đến 6
   const daysOfWeek = ['0', '1', '2', '3', '4', '5', '6'];
   const dayNames = ['Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy', 'Chủ Nhật'];
@@ -208,7 +327,7 @@ function organizeSchedules(schedules) {
       return {
         slot,
         members: slotData.map(schedule => ({
-          name: schedule.mssv, // Thay thế bằng tên thật nếu có
+          name: userLookup[schedule.mssv] || schedule.mssv, // Thay thế bằng tên thật nếu có
           mssv: schedule.mssv
         }))
       };
@@ -218,7 +337,6 @@ function organizeSchedules(schedules) {
   console.log("Data organized for view:", JSON.stringify(organized, null, 2)); // Log dữ liệu
   return organized;
 }
-
 
 
 // route đăng bài post

@@ -10,7 +10,10 @@
     <%- include('header') %>
     <div class="container mt-4">
         <h2>Lịch trực</h2>
-        <a href="/schedules/new" class="btn btn-primary mb-3">Đăng ký lịch trực</a>
+        <% if (user.role === 'member' || user.role === 'admin') { %>
+            <a href="/schedules/new" class="btn btn-primary mb-3">Đăng ký lịch trực</a>
+        <% } %>
+        
         <ul class="list-group">
             <% schedules.reverse().forEach(schedule => { %>
                 <li class="list-group-item">

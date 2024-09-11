@@ -27,9 +27,17 @@ app.use(session({
   saveUninitialized: false
 }));
 
+
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
+
+
+// Middleware to make user available in views
+app.use((req, res, next) => {
+    res.locals.user = req.user || null;
+    next();
+});
 
 // Routes
 app.use('/', require('./routes')); // Sử dụng các route trong index.js

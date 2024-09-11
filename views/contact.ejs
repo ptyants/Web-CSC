@@ -1,18 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liên hệ</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <h1>Liên hệ với chúng tôi</h1>
-    <form action="/contact" method="POST"> <!-- Đảm bảo method="POST" -->
-        <input type="text" name="name" placeholder="Tên của bạn" required>
-        <input type="email" name="email" placeholder="Email của bạn" required>
-        <textarea name="message" placeholder="Lời nhắn của bạn" required></textarea>
-        <button type="submit">Gửi</button>
-    </form>
-    <a href="/">Trở về Trang chủ</a>
+    <%- include('header') %>
+    
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Liên hệ với chúng tôi</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <form action="/contact" method="POST" class="border p-4 rounded shadow">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Họ và tên</label>
+                        <input type="text" name="name" class="form-control" placeholder="Tên của bạn" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control" placeholder="Email của bạn" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Lời nhắn</label>
+                        <textarea name="message" class="form-control" rows="5" placeholder="Lời nhắn của bạn" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Gửi</button>
+                </form>
+                <div class="text-center mt-3">
+                    <a href="/" class="btn btn-secondary">Trở về Trang chủ</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

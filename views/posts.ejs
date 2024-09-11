@@ -17,7 +17,7 @@
         <h2>Bài viết</h2>
         <a href="/posts/new" class="btn btn-primary mb-3">Viết bài mới</a>
         <ul class="list-group">
-            <% posts.forEach(post=> { %>
+            <% posts.reverse().forEach(post=> { %>
                 <li class="list-group-item">
                     <h5>
                         <%= post.title %>
