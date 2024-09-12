@@ -1,34 +1,37 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container">
+  <div class="container">
       <a class="navbar-brand" href="/">CLB CSC</a>
+
+      <!-- Nút để mở menu khi trên mobile -->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- Phần menu được ẩn/hiển thị tùy thuộc vào kích thước màn hình -->
       <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
-          <li class="nav-item"><a class="nav-link" href="/">Trang chủ</a></li>
-          <li class="nav-item"><a class="nav-link" href="/about">Giới thiệu</a></li>
-            <% if (user && user.role !== 'guest') { %>
-              <li class="nav-item"><a class="nav-link" href="/schedules/view">Lịch trực</a></li>
+          <ul class="navbar-nav me-auto">
+              <li class="nav-item"><a class="nav-link" href="/">Trang chủ</a></li>
+              <li class="nav-item"><a class="nav-link" href="/about">Giới thiệu</a></li>
+              <% if (user && user.role !== 'guest') { %>
+                  <li class="nav-item"><a class="nav-link" href="/schedules/view">Lịch trực</a></li>
 
-              <% if (['admin', 'member'].includes(user.role)) { %>
-                <li class="nav-item"><a class="nav-link" href="/posts">Quản lý bài viết</a></li>
-                <!-- <li class="nav-item"><a class="nav-link" href="/members">Quản lý thành viên</a></li> -->
-                <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
+                  <% if (['admin', 'member'].includes(user.role)) { %>
+                      <li class="nav-item"><a class="nav-link" href="/posts">Quản lý bài viết</a></li>
+                      <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
+                  <% } %>
               <% } %>
+              <li class="nav-item"><a class="nav-link" href="/contact">Liên hệ</a></li>
+          </ul>
 
-              <!-- <% if (user.role === 'admin') { %>
-                <li class="nav-item"><a class="nav-link" href="/posts">Quản lý bài viết</a></li>
-                <li class="nav-item"><a class="nav-link" href="/members">Quản lý thành viên</a></li>
-              <% } %> -->
-            
-          <% } %>
-          <li class="nav-item"><a class="nav-link" href="/contact">Liên hệ</a></li>
-        </ul>
+          <!-- Nút đăng nhập/đăng ký hoặc đăng xuất -->
+          <ul class="navbar-nav ms-auto">
+              <% if (!user) { %>
+                  <li class="nav-item"><a class="nav-link me-2" href="/login">Đăng nhập</a></li>
+                  <li class="nav-item"><a class="nav-link" href="/register">Đăng ký</a></li>
+              <% } else { %>
+                  <li class="nav-item"><a class="nav-link" href="/logout">Đăng xuất</a></li>
+              <% } %>
+          </ul>
       </div>
-      <% if (!user) { %>
-        <a class="nav-link me-2" href="/login">Đăng nhập</a>
-        <a class="nav-link" href="/register">Đăng ký</a>
-      <% } else { %>
-        <a class="nav-link" href="/logout">Đăng xuất</a>
-      <% } %>
-    </div>
-  </nav>
-  
+  </div>
+</nav>

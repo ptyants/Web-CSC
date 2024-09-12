@@ -21,20 +21,24 @@ async function login(req, res) {
 
         // Tạo token JWT
         const token = jwt.sign(
-            { id: user._id, role: user.role }, 
-            process.env.JWT_SECRET || 'secretKey', 
-            { expiresIn: '1h' } // Token có hiệu lực trong 1 giờ
+            { id: user._id, role: user.role },
+            process.env.JWT_SECRET || 'secretKey',
+            { expiresIn: '8h' } // Token có hiệu lực trong 8 giờ
         );
+
+        console.log('Generated Token:', token); // Thêm dòng này để kiểm tra token
 
         return res.json({ token });
     } catch (err) {
+        console.error('Error in login:', err); // Ghi lại lỗi nếu có
         return res.status(500).json({ message: 'Lỗi hệ thống' });
     }
 }
 
 // Middleware kiểm tra token JWT
 function isAuthenticated(req, res, next) {
-    const token = req.headers['authorization'];
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]; // Lấy token từ header Authorization
 
     if (!token) {
         return res.status(401).json({ message: 'Bạn chưa đăng nhập' });
@@ -45,6 +49,7 @@ function isAuthenticated(req, res, next) {
         req.user = decoded;
         next();
     } catch (err) {
+        console.error('Error verifying token:', err); // Ghi lại lỗi nếu có
         return res.status(401).json({ message: 'Token không hợp lệ' });
     }
 }
