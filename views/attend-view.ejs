@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPS Example</title>
+</head>
+<body>
+    <h1>Lấy vị trí từ GPS</h1>
+    <button onclick="getLocation()">Lấy vị trí</button>
+
+    <script>
+        function getLocation() {
+            if (navigator.geolocation) {
+                // Sử dụng options nếu bạn muốn điều chỉnh timeout hoặc độ chính xác
+                const options = {
+                    enableHighAccuracy: true,
+                    timeout: 5000, // Thời gian chờ tối đa để lấy vị trí
+                    maximumAge: 0 // Không sử dụng vị trí cũ
+                };
+
+                // Gọi geolocation và xử lý vị trí hoặc lỗi
+                navigator.geolocation.getCurrentPosition(
+                    sendPositionToServer, 
+                    handleLocationError, 
+                    options
+                );
+            } else {
+                alert("Trình duyệt của bạn không hỗ trợ Geolocation.");
+            }
+        }
+
+        // Hàm gửi vị trí đến server
+        function sendPositionToServer(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+
+            // Gửi dữ liệu vị trí đến server Node.js qua fetch API
+            fetch('/save-location', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    latitude: lat,
+                    longitude: lon
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Vị trí đã được lưu:', data);
+            })
+            .catch((error) => {
+                console.error('Lỗi:', error);
+            });
+        }
+
+        // Hàm xử lý lỗi khi không thể lấy vị trí
+        function handleLocationError(error) {
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("Bạn đã từ chối truy cập vị trí.");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert("Không thể lấy vị trí của bạn.");
+                    break;
+                case error.TIMEOUT:
+                    alert("Yêu cầu lấy vị trí đã hết thời gian.");
+                    break;
+                case error.UNKNOWN_ERROR:
+                    alert("Đã xảy ra lỗi không xác định.");
+                    break;
+            }
+        }
+    </script>
+</body>
+</html>
