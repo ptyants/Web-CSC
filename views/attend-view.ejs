@@ -8,10 +8,12 @@
 <body>
     <h1>Lấy vị trí từ GPS</h1>
     <button onclick="getLocation()">Lấy vị trí</button>
+    <p id="status"></p> <!-- Thêm đoạn này để hiển thị trạng thái -->
 
     <script>
         function getLocation() {
             if (navigator.geolocation) {
+                document.getElementById("status").innerHTML = "Đang lấy vị trí...";
                 // Sử dụng options nếu bạn muốn điều chỉnh timeout hoặc độ chính xác
                 const options = {
                     enableHighAccuracy: true,
@@ -49,9 +51,11 @@
             .then(response => response.json())
             .then(data => {
                 console.log('Vị trí đã được lưu:', data);
+                document.getElementById("status").innerHTML = `Vĩ độ: ${lat}, Kinh độ: ${lon}`;
             })
             .catch((error) => {
                 console.error('Lỗi:', error);
+                document.getElementById("status").innerHTML = "Lỗi khi gửi dữ liệu vị trí.";
             });
         }
 
@@ -71,6 +75,7 @@
                     alert("Đã xảy ra lỗi không xác định.");
                     break;
             }
+            document.getElementById("status").innerHTML = "Không thể lấy vị trí.";
         }
     </script>
 </body>
