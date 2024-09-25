@@ -13,37 +13,77 @@
         <% if (user.role === 'member' || user.role === 'admin') { %>
             <a href="/schedules/new" class="btn btn-primary mb-3">Đăng ký lịch trực</a>
         <% } %>
-        
+
         <ul class="list-group">
             <% schedules.reverse().forEach(schedule => { %>
                 <li class="list-group-item">
                     <p><strong>MSSV:</strong> <%= schedule.mssv %></p>
-                    <p><strong>Lịch trực:</strong></p>
+                    <p><strong>Họ & Tên:</strong> <%= schedule.username %></p>
+                    <p><strong>Lịch trực:</strong> <%= schedule.totalSessions %> buổi</p> <!-- Hiển thị số buổi trực -->
                     <ul>
                         <% const dayNames = ['Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy', 'Chủ Nhật']; %>
-                        <% for (let i = 0; i < 7; i++) { %> <!-- Duyệt từ 0 đến 6 để bao gồm cả Chủ Nhật -->
+                        <% for (let i = 0; i < 7; i++) { %> 
                             <% if (schedule.scheduleData.has(i.toString()) && schedule.scheduleData.get(i.toString()).length > 0) { %> 
                                 <li>
                                     <strong><%= dayNames[i] %>:</strong> 
-                                    <%= schedule.scheduleData.get(i.toString()).join(', ') %> <!-- Hiển thị các khung giờ -->
+                                    <%= schedule.scheduleData.get(i.toString()).join(', ') %>
                                 </li>
                             <% } %>
                         <% } %>
                     </ul>
                     <p><strong>Ngày đăng ký:</strong> <%= new Date(schedule.registrationTime).toLocaleString() %></p>
-                    <p><strong>Trạng thái:</strong> <%= schedule.status %></p>
+                    <p><strong>Trạng thái:</strong> <span id="status-<%= schedule._id %>"><%= schedule.status %></span></p>
+
                     <% if (schedule.status === 'Pending') { %>
-                        <form action="/schedules/<%= schedule._id %>/approve" method="POST" style="display:inline;">
-                            <button type="submit" class="btn btn-success">Duyệt</button>
-                        </form>
-                        <form action="/schedules/<%= schedule._id %>/reject" method="POST" style="display:inline;">
-                            <button type="submit" class="btn btn-danger">Từ chối</button>
-                        </form>
+                        <button class="btn btn-success approve-btn" data-id="<%= schedule._id %>">Duyệt</button>
+                        <button class="btn btn-danger reject-btn" data-id="<%= schedule._id %>">Từ chối</button>
                     <% } %>
                 </li>
             <% }); %>
         </ul>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Xử lý duyệt yêu cầu
+            $('.approve-btn').click(function(e) {
+                e.preventDefault();
+                const scheduleId = $(this).data('id');
+
+                $.ajax({
+                    url: `/schedules/${scheduleId}/approve`,
+                    type: 'POST',
+                    success: function(response) {
+                        $(`#status-${scheduleId}`).text('Approved');
+                        $(`button[data-id="${scheduleId}"]`).remove(); // Ẩn nút sau khi duyệt
+                    },
+                    error: function() {
+                        alert('Có lỗi xảy ra. Vui lòng thử lại.');
+                    }
+                });
+            });
+
+            // Xử lý từ chối yêu cầu
+            $('.reject-btn').click(function(e) {
+                e.preventDefault();
+                const scheduleId = $(this).data('id');
+
+                $.ajax({
+                    url: `/schedules/${scheduleId}/reject`,
+                    type: 'POST',
+                    success: function(response) {
+                        $(`#status-${scheduleId}`).text('Rejected');
+                        $(`button[data-id="${scheduleId}"]`).remove(); // Ẩn nút sau khi từ chối
+                    },
+                    error: function() {
+                        alert('Có lỗi xảy ra. Vui lòng thử lại.');
+                    }
+                });
+            });
+        });
+    </script>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -219,7 +219,7 @@ router.get('/schedules/new', checkRole('member'),async (req, res) => {
 router.post('/schedules/:id/approve', async (req, res) => {
   const { id } = req.params;
   await Schedule.findByIdAndUpdate(id, { status: 'Approved' });
-  res.redirect('/schedules');
+  res.status(200).json({ message: 'Đã thay đổi', id });
 });
 
 router.post('/schedules/:id/reject', async (req, res) => {

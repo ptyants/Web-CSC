@@ -1,11 +1,16 @@
 const express = require('express');
-const passport = require('passport');
 const methodOverride = require('method-override');
 const session = require('express-session');
 const flash = require('express-flash');
 const mongoose = require('mongoose');
 const MongoStore = require('connect-mongo');
 const path = require('path');
+const passport = require('passport');
+const indexRouter = require('./index');
+require('./config/passport')(passport); // Khởi tạo Passport
+
+// Load các biến môi trường từ file .env
+require('dotenv').config();
 
 const app = express();
 
@@ -17,36 +22,37 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Middleware để xử lý dữ liệu từ body request
-app.use(express.json()); // Middleware để xử lý JSON
-app.use(express.urlencoded({ extended: false })); // Middleware để xử lý dữ liệu từ form (x-www-form-urlencoded)
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 // Middleware khác
 app.use(methodOverride('_method'));
 app.use(session({
-    secret: 'your-secret-key',
+    secret: process.env.SESSION_SECRET || 'your-default-secret', // Thay thế 'your-default-secret' bằng secret thực sự của bạn
     resave: false,
     saveUninitialized: true,
-    store: MongoStore.create({ mongoUrl: 'mongodb+srv://phamtheants:MjJg26IjuyUft9pu@webcscdb.tlk67.mongodb.net/CSC_db?retryWrites=true&w=majority' }),
-    cookie: { secure: false }
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGODB_URI || 'your-default-mongodb-uri', // Thay thế 'your-default-mongodb-uri' bằng URL MongoDB thực sự của bạn
+        collectionName: 'sessions'
+    }),
+    cookie: { secure: false } // Thay đổi thành true nếu sử dụng HTTPS
 }));
 
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 
-
-// Middleware to make user available in views
+// Middleware để cung cấp thông tin người dùng cho views
 app.use((req, res, next) => {
     res.locals.user = req.user || null;
     next();
 });
 
 // Routes
-app.use('/', require('./routes')); // Sử dụng các route trong index.js
+app.use('/', indexRouter);
 
 // Kết nối tới MongoDB
-mongoose.connect('mongodb+srv://phamtheants:MjJg26IjuyUft9pu@webcscdb.tlk67.mongodb.net/CSC_db?retryWrites=true&w=majority', 
-    { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(process.env.MONGODB_URI || 'your-default-mongodb-uri', { useNewUrlParser: true, useUnifiedTopology: true });
 
 const db = mongoose.connection;
 
@@ -61,7 +67,7 @@ db.once('open', () => {
 
     // Khởi động server chỉ khi MongoDB đã kết nối
     const PORT = process.env.PORT || 3000;
-    app.listen(PORT, '127.0.0.1', () => {
-        console.log(`Server chạy tại http://127.0.0.1:${PORT}/`);
+    app.listen(PORT, () => {
+        console.log(`Server chạy tại http://localhost:${PORT}/`);
     });
 });

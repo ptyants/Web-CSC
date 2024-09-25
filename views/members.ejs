@@ -1,13 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Thành viên CLB</title>
     <link rel="stylesheet" href="/css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .statistics-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .statistic-item {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            width: calc(33.333% - 20px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .statistic-item h5 {
+            margin-bottom: 10px;
+        }
+
+        .roles {
+            margin-top: 10px;
+        }
+
+        .role {
+            display: inline-block;
+            margin-right: 10px;
+        }
+    </style>
 </head>
+
 <body>
-    <h1>Thành viên CLB</h1>
-    <p>Danh sách các thành viên trong CLB.</p>
-    <a href="/">Trở về Trang chủ</a>
+    <%- include('header', { user: user }) %>
+
+    <div class="container mt-4">
+        <h1>Thông Tin Thành Viên</h1>
+
+        <h5>Tổng số thành viên: <%= users.length %></h5>
+
+        <h2>Thống Kê Chi Tiết</h2>
+        <div class="statistics-container">
+            <% Object.entries(statistics).forEach(([prefix, data]) => { %>
+                <div class="statistic-item">
+                    <h5>Hai Chữ Số Đầu MSSV: <strong><%= prefix %></strong></h5>
+                    <p>Số Thành Viên: <strong><%= data.count %></strong></p>
+                    <div class="roles">
+                        <% Object.entries(data.roles).forEach(([role, count]) => { %>
+                            <span class="role">
+                                <strong><%= role %>:</strong> <%= count %> thành viên
+                            </span><br />
+                        <% }); %>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+
+        <hr /><br />
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Username</th>
+                    <th>MSSV</th>
+                    <th>Vai trò</th>
+                    <% if (currentUser.role === 'admin') { %>
+                        <th>Hành động</th>
+                    <% } %>
+                </tr>
+            </thead>
+            <tbody>
+                <% users.forEach(function(user, index) { %>
+                <tr>
+                    <td><%= index + 1 %></td>
+                    <td><%= user.username %></td>
+                    <td><%= user.mssv %></td>
+                    <td>
+                        <% if (currentUser.role === 'admin') { %> 
+                            <!-- Nếu là admin thì hiển thị dropdown thay đổi vai trò -->
+                            <form action="/members/change-role/<%= user._id %>" method="POST" style="display:inline;">
+                                <select name="role" class="form-select form-select-sm d-inline-block w-auto">
+                                    <option value="guest" <%= user.role === 'guest' ? 'selected' : '' %>>Guest</option>
+                                    <option value="member" <%= user.role === 'member' ? 'selected' : '' %>>Member</option>
+                                    <option value="admin" <%= user.role === 'admin' ? 'selected' : '' %>>Admin</option>
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-primary">Thay đổi</button>
+                            </form>
+                        <% } else { %>
+                            <!-- Nếu không phải admin thì chỉ hiển thị vai trò dưới dạng văn bản -->
+                            <span><%= user.role %></span>
+                        <% } %>
+                    </td>
+                    <td>
+                        <% if (currentUser.role === 'admin' && user.role !== 'admin') { %>
+                            <!-- Nếu người dùng hiện tại là admin và đối tượng không phải admin, cho phép xóa -->
+                            <form action="/members/delete/<%= user._id %>" method="POST" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                            </form>
+                        <% } %>
+                    </td>
+                </tr>
+                <% }); %>
+            </tbody>
+        </table>
+
+        <a href="/" class="btn btn-secondary">Trở về Trang chủ</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
